@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>กลองยาวแบงค์ — ธนาคารเสียง &amp; จูนเนอร์กลองยาว</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@600;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wood-dark:#1c0f08;
+    --wood-darker:#120a05;
+    --hide:#ede0c8;
+    --hide-soft:#f7f1e2;
+    --rope:#b23a2e;
+    --rope-dark:#7c2a21;
+    --banana:#d9a441;
+    --banana-dark:#a8791f;
+    --rice:#f6f1e3;
+    --rice-line:#c9b98f;
+    --ink:#2b1810;
+    --cream-text:#f6ecd9;
+    --success:#5f8a4f;
+    --danger:#b5382c;
+    --info:#3f7ea6;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;font-family:'Noto Sans Thai',sans-serif;background:#0c0705;color:var(--ink);
+  }
+  .site{max-width:960px;margin:0 auto;background:var(--hide-soft);min-height:100vh;box-shadow:0 0 60px rgba(0,0,0,.5);}
+
+  /* ---- rope divider signature ---- */
+  .rope-divider{width:100%;height:18px;line-height:0;}
+  .rope-divider svg{width:100%;height:100%;display:block;}
+
+  /* ---- header ---- */
+  header{
+    background:linear-gradient(180deg,var(--wood-darker),var(--wood-dark));
+    color:var(--cream-text);padding:30px 20px 0;text-align:center;position:relative;
+  }
+  .brand-eyebrow{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;opacity:.55;font-weight:600;}
+  .brand-title{font-family:'Noto Serif Thai',serif;font-size:30px;font-weight:700;margin:6px 0 4px;}
+  .brand-sub{font-size:13px;opacity:.7;margin-bottom:18px;}
+
+  nav.tabs{
+    display:flex;gap:6px;padding:12px 12px;background:var(--wood-dark);
+    position:sticky;top:0;z-index:30;overflow-x:auto;scrollbar-width:none;
+  }
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{
+    flex:1 0 auto;white-space:nowrap;padding:10px 16px;border-radius:999px;border:1.5px solid rgba(246,236,217,.15);
+    background:transparent;color:var(--cream-text);font-family:'Noto Sans Thai';font-weight:600;font-size:13px;cursor:pointer;transition:.2s;
+  }
+  nav.tabs button.active{background:var(--hide);color:var(--ink);border-color:var(--rope);}
+  nav.tabs button:not(.active):hover{border-color:rgba(246,236,217,.4);}
+
+  main{padding:22px 16px 70px;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  h3.panel-title{font-family:'Noto Serif Thai',serif;font-size:20px;margin:0 0 4px;color:var(--ink);}
+  p.panel-desc{font-size:13.5px;color:#6b5744;margin:0 0 16px;line-height:1.6;}
+
+  .card{background:#fff;border-radius:var(--radius);padding:18px;box-shadow:0 8px 20px rgba(43,24,16,.08);margin-bottom:16px;border:1px solid #ece0c8;}
+
+  .option-group{margin-bottom:14px;text-align:left;}
+  .option-label{font-size:13px;font-weight:700;color:#6b5744;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .option-label .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+  .chip{flex:1;min-width:130px;padding:10px;border:2px solid #e4d7bd;border-radius:12px;cursor:pointer;background:#fff;font-weight:700;font-size:12.5px;transition:.2s;color:var(--ink);font-family:inherit;}
+  .chip.banana-mode.active{border-color:var(--banana-dark);background:var(--banana);color:#2b1810;}
+  .chip.rice-mode.active{border-color:var(--rice-line);background:var(--rice);color:var(--ink);}
+  .chip.no-mass.active{border-color:var(--info);background:var(--info);color:#fff;}
+
+  .tuner-display{background:#111;color:#00ff8a;border-radius:22px;padding:26px 10px;margin:16px 0;border:5px solid #2a2a2a;box-shadow:inset 0 0 22px #000;}
+  .hz-text{font-family:'JetBrains Mono',monospace;font-size:44px;text-align:center;text-shadow:0 0 10px #00ff8a;}
+  .hz-sub{color:#8a8a8a;font-size:12.5px;text-align:center;margin-top:2px;font-family:'JetBrains Mono',monospace;}
+  .needle-container{position:relative;height:46px;width:100%;margin-top:10px;border-bottom:2px solid #333;}
+  .needle{width:4px;height:56px;background:#ff4433;margin:0 auto;transform-origin:bottom center;transition:.1s;border-radius:2px;}
+
+  .advice-card{background:var(--hide);border-radius:15px;padding:16px;text-align:left;border-left:6px solid var(--rope);margin-top:14px;min-height:70px;}
+  .advice-title{font-weight:700;color:var(--rope-dark);margin-bottom:6px;font-size:16px;}
+  .expert-ref{font-size:12px;color:#7a6a55;margin-top:8px;padding-top:8px;border-top:1px dashed #cbb98f;}
+
+  .btn{border:none;border-radius:999px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;}
+  .btn-main{width:100%;padding:16px;border-radius:50px;background:var(--wood-dark);color:var(--cream-text);font-size:16px;box-shadow:0 8px 18px rgba(0,0,0,.25);}
+  .btn-main:hover{background:#2a170c;}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn-outline{background:transparent;border:1.5px solid var(--rope);color:var(--rope-dark);padding:8px 14px;}
+  .btn-small{padding:6px 12px;font-size:12px;border-radius:999px;}
+  .btn-rope{background:var(--rope);color:#fff;padding:12px 18px;font-size:14px;}
+  .btn-rope:hover{background:var(--rope-dark);}
+  .btn-block{width:100%;padding:12px;}
+
+  /* bank */
+  .bank-toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px;}
+  .notice{font-size:12px;background:#fdf3e3;border:1px dashed var(--rice-line);color:#7a6a3f;padding:8px 12px;border-radius:12px;margin-bottom:14px;}
+  .bank-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .filter-chip{padding:6px 12px;border-radius:999px;border:1.5px solid #e4d7bd;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:#6b5744;}
+  .filter-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .bank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+  .bank-card{background:#fff;border-radius:16px;padding:14px;border:1px solid #ece0c8;border-top:5px solid var(--rope);box-shadow:0 6px 14px rgba(43,24,16,.06);}
+  .bank-card.banana{border-top-color:var(--banana-dark);}
+  .bank-card.rice{border-top-color:var(--rice-line);}
+  .bank-card.none{border-top-color:var(--info);}
+  .bank-card h4{margin:0 0 2px;font-size:15px;font-family:'Noto Serif Thai',serif;}
+  .bank-meta{font-size:11.5px;color:#8a7a63;margin-bottom:8px;}
+  .bank-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+  .tag{font-size:10.5px;background:var(--hide);padding:3px 8px;border-radius:999px;color:#6b5744;font-weight:600;}
+  .bank-card audio{width:100%;height:32px;margin-bottom:8px;}
+  .bank-card-actions{display:flex;gap:6px;}
+  .empty-state{text-align:center;padding:40px 20px;color:#9a8a70;font-size:13.5px;}
+
+  /* modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(18,10,5,.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px;}
+  .modal-overlay.hidden{display:none;}
+  .modal{background:#fff;border-radius:20px;max-width:440px;width:100%;max-height:88vh;overflow-y:auto;padding:20px;}
+  .modal h3{margin-top:0;font-family:'Noto Serif Thai',serif;}
+  .field{margin-bottom:12px;text-align:left;}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:#6b5744;margin-bottom:5px;}
+  .field input[type=text],.field input[type=number],.field select{
+    width:100%;padding:10px;border-radius:10px;border:1.5px solid #e4d7bd;font-family:inherit;font-size:13.5px;background:#fdfaf3;
+  }
+  .rec-row{display:flex;gap:8px;margin-bottom:10px;}
+  .rec-row button{flex:1;}
+  .mini-note{font-size:11.5px;color:#9a8a70;margin-top:4px;}
+  .rec-status{font-size:12.5px;font-weight:700;color:var(--rope-dark);min-height:18px;margin:6px 0;}
+
+  /* compare */
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:520px){.compare-grid{grid-template-columns:1fr;}}
+  .compare-box{background:#111;border-radius:16px;padding:16px;text-align:center;color:var(--cream-text);}
+  .compare-box .lbl{font-size:11px;opacity:.6;letter-spacing:1px;text-transform:uppercase;}
+  .compare-box .val{font-family:'JetBrains Mono',monospace;font-size:30px;margin:6px 0;}
+  .diff-banner{margin-top:14px;padding:14px;border-radius:14px;text-align:center;font-weight:700;font-size:14px;}
+
+  /* guide */
+  .guide-section{margin-bottom:18px;}
+  .guide-section h4{font-family:'Noto Serif Thai',serif;font-size:16px;margin:0 0 8px;color:var(--rope-dark);}
+  .guide-section ol,.guide-section ul{margin:0;padding-left:20px;font-size:13.5px;line-height:1.8;color:#4a3a28;}
+  table.ref-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px;}
+  table.ref-table th,table.ref-table td{padding:6px 8px;border-bottom:1px solid #eee1cb;text-align:left;}
+  table.ref-table th{color:#8a7a63;font-weight:700;font-size:11px;text-transform:uppercase;}
+
+  .calc-result{margin-top:14px;padding:16px;border-radius:14px;background:var(--hide);border-left:6px solid var(--banana-dark);}
+  .calc-result .big{font-family:'JetBrains Mono',monospace;font-size:26px;color:var(--ink);}
+  .disclaimer{font-size:11.5px;color:#8a7a63;margin-top:10px;line-height:1.6;}
+
+  footer{background:var(--wood-darker);color:var(--cream-text);text-align:center;padding:18px;font-size:11.5px;opacity:.6;}
+</style>
+<!-- ===== PWA meta ===== -->
+<meta name="theme-color" content="#1c0f08">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="กลองยาวแบงค์">
+<meta name="description" content="จูนเนอร์และธนาคารเสียงกลองยาวไทย — วัดเสียง เทียบเสียง คำนวณมวล">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<div class="site">
+
+  <header>
+    <div class="brand-eyebrow">Klong Yao Sound Archive</div>
+    <div class="brand-title">🥁 กลองยาวแบงค์</div>
+    <div class="brand-sub">ธนาคารเก็บเสียงกลองยาว + จูนเนอร์มาตรฐาน + เครื่องคำนวณมวล</div>
+  </header>
+  <div class="rope-divider" id="rope-top"></div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="tuner">🎯 จูนเสียง</button>
+    <button class="tab-btn" data-tab="bank">🏦 คลังเสียง</button>
+    <button class="tab-btn" data-tab="compare">⚖️ เปรียบเทียบ</button>
+    <button class="tab-btn" data-tab="guide">📖 คู่มือ/คำนวณมวล</button>
+  </nav>
+
+  <main>
+
+    <!-- ============ TUNER TAB ============ -->
+    <section id="tab-tuner" class="tab-panel active">
+      <h3 class="panel-title">จูนเนอร์กลองยาว</h3>
+      <p class="panel-desc">เลือกโหมดตั้งเสียงมาตรฐานด้านล่าง แล้วกด "เริ่มวัดเสียงจริง" เพื่อเทียบเสียงกลองของคุณกับช่วงความถี่ที่เหมาะสม</p>
+
+      <div id="preset-groups"></div>
+
+      <div class="tuner-display">
+        <div class="hz-text" id="current-hz">0.00</div>
+        <div class="hz-sub">ช่วงที่เหมาะสม: <span id="target-hz-display">144.00 - 148.00</span> Hz (<span id="target-note-display">D3</span>)</div>
+        <div class="needle-container"><div class="needle" id="needle"></div></div>
+      </div>
+
+      <div class="advice-card" id="advice-card">
+        <div class="advice-title" id="status-label">สถานะ: ปิดไมค์</div>
+        <div id="advice-content">เลือกโหมดจูนด้านบนแล้วกดเริ่มวัดเสียง</div>
+        <div class="expert-ref" id="expert-ref">อ้างอิง: —</div>
+      </div>
+
+      <button id="start-btn" class="btn btn-main">เริ่มวัดเสียงจริง</button>
+      <button id="save-to-bank-btn" class="btn btn-outline btn-block" style="margin-top:10px;">💾 บันทึกเสียงที่วัดได้ลงคลัง</button>
+    </section>
+
+    <!-- ============ BANK TAB ============ -->
+    <section id="tab-bank" class="tab-panel">
+      <h3 class="panel-title">คลังเสียงกลองยาว (สาธารณะ)</h3>
+      <p class="panel-desc">เก็บทั้งไฟล์เสียงจริงและค่าพารามิเตอร์การตั้งเสียง แชร์ให้ทุกคนฟังและใช้อ้างอิงได้</p>
+      <div class="notice">🔊 เสียงและข้อมูลที่คุณอัปโหลดจะเป็น <b>สาธารณะ</b> ผู้ใช้คนอื่นสามารถฟังและนำไปเทียบเสียงได้</div>
+
+      <div class="bank-toolbar">
+        <div class="bank-filters" id="bank-filters">
+          <button class="filter-chip active" data-filter="all">ทั้งหมด</button>
+          <button class="filter-chip" data-filter="banana">กล้วยบด</button>
+          <button class="filter-chip" data-filter="rice">ข้าวเหนียว</button>
+          <button class="filter-chip" data-filter="none">กลองเปล่า</button>
+        </div>
+        <button class="btn btn-rope" id="open-upload-btn">➕ อัปโหลดเสียง</button>
+      </div>
+
+      <div id="bank-grid" class="bank-grid"></div>
+    </section>
+
+    <!-- ============ COMPARE TAB ============ -->
+    <section id="tab-compare" class="tab-panel">
+      <h3 class="panel-title">เปรียบเทียบเสียงกลองของคุณกับคลัง</h3>
+      <p class="panel-desc">เลือกเสียงอ้างอิงจากคลัง แล้วตีกลองของคุณเทียบสด ๆ ผ่านไมค์</p>
+
+      <div class="field">
+        <label>เลือกเสียงอ้างอิงจากคลัง</label>
+        <select id="compare-select"><option value="">— เลือกเสียงอ้างอิง —</option></select>
+      </div>
+      <div id="compare-ref-audio" style="margin-bottom:14px;"></div>
+
+      <div class="compare-grid">
+        <div class="compare-box">
+          <div class="lbl">เสียงอ้างอิง</div>
+          <div class="val" id="compare-target-hz">— Hz</div>
+          <div class="lbl" id="compare-target-note">—</div>
+        </div>
+        <div class="compare-box" style="background:#0e2430;">
+          <div class="lbl">เสียงของคุณ (สด)</div>
+          <div class="val" id="compare-live-hz">0.00</div>
+          <div class="lbl" id="compare-live-note">รอวัด...</div>
+        </div>
+      </div>
+
+      <div class="diff-banner" id="compare-diff-banner" style="background:var(--hide);color:#6b5744;">เลือกเสียงอ้างอิงแล้วกดเริ่มฟังเพื่อเปรียบเทียบ</div>
+
+      <button id="compare-mic-btn" class="btn btn-main" style="margin-top:14px;">เริ่มฟังเพื่อเปรียบเทียบ</button>
+    </section>
+
+    <!-- ============ GUIDE TAB ============ -->
+    <section id="tab-guide" class="tab-panel">
+      <h3 class="panel-title">คู่มือปรับมวล &amp; เครื่องคำนวณ</h3>
+      <p class="panel-desc">แนวทางเพิ่ม/ลดมวลกล้วยบดหรือข้าวเหนียว เพื่อดึงเสียงกลองกลับไปยังเสียงต้นฉบับที่ต้องการ</p>
+
+      <div class="card guide-section">
+        <h4>🍌 กล้วยบด</h4>
+        <ol>
+          <li>บดกล้วยน้ำว้าสุกให้เนียน ปั้นเป็นแผ่นบางตามมวลเป้าหมาย</li>
+          <li><b>แบบโดนัท:</b> ติดเป็นวงแหวนรอบจุดศูนย์กลางหน้ากลอง เหมาะกับการควบคุมความถี่ให้แคบและนิ่ง</li>
+          <li><b>แบบวงกลม:</b> ติดเป็นแผ่นวงกลมทึบตรงกลาง ปรับง่ายกว่าแต่มวลต่อพื้นที่จะสูงกว่า</li>
+          <li>เสียงสูงเกินไป → เพิ่มมวลหรือขยายรัศมีออกทางขอบ / เสียงต่ำเกินไป → ลดมวลหรือบีบเข้าหาศูนย์กลาง</li>
+        </ol>
+        <table class="ref-table">
+          <tr><th>ขนาด</th><th>มวลอ้างอิง</th><th>ความถี่เป้าหมาย</th></tr>
+          <tr><td>9.5" (โดนัท)</td><td>14.96 ก.</td><td>144–148 Hz (D3)</td></tr>
+          <tr><td>11" (โดนัท)</td><td>20.71 ก.</td><td>154.5–157 Hz (D#3)</td></tr>
+        </table>
+      </div>
+
+      <div class="card guide-section">
+        <h4>🍚 ข้าวเหนียว (สูตรดั้งเดิม)</h4>
+        <ul>
+          <li>นึ่งข้าวเหนียวให้สุกนุ่ม ตำหรือบดให้เหนียวจับตัว ก่อนติดหน้ากลอง</li>
+          <li>ข้าวเหนียวให้เนื้อสัมผัสหนืดกว่ากล้วยบด มวลต่อหน่วยพื้นที่จะสูงกว่าเล็กน้อยที่ความถี่เป้าหมายเดียวกัน</li>
+          <li>ปรับเสียงด้วยหลักเดียวกับกล้วยบด: เพิ่ม/ขยายรัศมี = เสียงต่ำลง, ลด/บีบรัศมี = เสียงสูงขึ้น</li>
+        </ul>
+        <table class="ref-table">
+          <tr><th>ขนาด</th><th>มวลอ้างอิง</th><th>ความถี่เป้าหมาย</th></tr>
+          <tr><td>9.5"</td><td>18.8 ก.</td><td>138.69–141 Hz (C#3)</td></tr>
+          <tr><td>11"</td><td>26.8 ก.</td><td>155.64–157 Hz (D#3)</td></tr>
+        </table>
+      </div>
+
+      <div class="card guide-section">
+        <h4>🪘 กลองเปล่า (ไม่ติดวัสดุ)</h4>
+        <p style="font-size:13.5px;color:#4a3a28;">ใช้การขันหรือผ่อนเชือกโยงหน้ากลองแทนการติดมวล เสียงสูงไป → ผ่อนเชือกให้หย่อนลง / เสียงต่ำไป → ขันเชือกให้ตึงขึ้น</p>
+      </div>
+
+      <div class="card">
+        <h4 style="font-family:'Noto Serif Thai',serif;color:var(--rope-dark);margin-top:0;">🧮 เครื่องคำนวณมวลโดยประมาณ</h4>
+        <p style="font-size:12.5px;color:#6b5744;">คำนวณว่าควรเพิ่มหรือลดมวลวัสดุเท่าไร เพื่อดึงความถี่กลองของคุณไปยังเป้าหมาย โดยอิงหลัก "มวลแปรผกผันกับความถี่ยกกำลังสอง" (m ∝ 1/f²) — ใช้ค่าจากกลองใบเดียวกันของคุณเองเป็นตัวคาลิเบรต</p>
+
+        <div class="field">
+          <label>มวลวัสดุที่ติดอยู่ตอนนี้ (กรัม)</label>
+          <input type="number" id="calc-mass" placeholder="เช่น 15">
+        </div>
+        <div class="field">
+          <label>ความถี่ที่วัดได้ตอนนี้ (Hz)</label>
+          <div class="rec-row" style="margin-bottom:0;">
+            <input type="number" id="calc-freq-current" placeholder="เช่น 152.4">
+            <button class="btn btn-outline btn-small" id="calc-use-tuner" type="button">ใช้ค่าล่าสุดจากจูนเนอร์</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>เป้าหมาย: เลือกจากคลัง/มาตรฐาน หรือกรอกเอง (Hz)</label>
+          <select id="calc-target-select" style="margin-bottom:8px;"></select>
+          <input type="number" id="calc-freq-target" placeholder="หรือกรอกความถี่เป้าหมายเอง (Hz)">
+        </div>
+        <button class="btn btn-rope btn-block" id="calc-btn">คำนวณมวลที่ควรปรับ</button>
+
+        <div class="calc-result" id="calc-result" style="display:none;"></div>
+        <div class="disclaimer">⚠️ ค่านี้เป็นการประมาณทางฟิสิกส์อย่างง่ายจากค่าที่วัดจริงของกลองใบนี้เท่านั้น ไม่ใช่สูตรตายตัว ควรวัดซ้ำและปรับทีละน้อยหลังเปลี่ยนมวลทุกครั้งเพื่อความแม่นยำ</div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="rope-divider" id="rope-bottom"></div>
+  <footer>กลองยาวแบงค์ — สร้างขึ้นเพื่อสืบสานภูมิปัญญาการตั้งเสียงกลองยาวไทย</footer>
+</div>
+
+<!-- ============ UPLOAD MODAL ============ -->
+<div class="modal-overlay hidden" id="upload-modal">
+  <div class="modal">
+    <h3>➕ อัปโหลดเสียงกลองใหม่</h3>
+    <div class="notice">ข้อมูลนี้จะถูกแชร์แบบสาธารณะให้ผู้ใช้คนอื่นเห็นและฟังได้</div>
+
+    <div class="field">
+      <label>ชื่อเสียง/รายการ</label>
+      <input type="text" id="up-name" placeholder="เช่น กลอง 9.5 นิ้ว กล้วยบดโดนัท ของครูสมชาย">
+    </div>
+    <div class="field">
+      <label>ชื่อผู้อัปโหลด (ไม่บังคับ)</label>
+      <input type="text" id="up-submitter" placeholder="ชื่อของคุณ">
+    </div>
+    <div class="field">
+      <label>วัสดุที่ใช้</label>
+      <select id="up-material">
+        <option value="banana">กล้วยบด</option>
+        <option value="rice">ข้าวเหนียว</option>
+        <option value="none">กลองเปล่า (ไม่ติดวัสดุ)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>ขนาดกลอง</label>
+      <select id="up-size">
+        <option value="9.5 นิ้ว">9.5 นิ้ว</option>
+        <option value="11 นิ้ว">11 นิ้ว</option>
+        <option value="อื่นๆ">ขนาดอื่น ๆ</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>มวลวัสดุ (กรัม, ใส่ 0 ถ้าไม่มี)</label>
+      <input type="number" id="up-mass" placeholder="เช่น 14.96">
+    </div>
+
+    <div class="field">
+      <label>ไฟล์เสียง</label>
+      <div class="rec-row">
+        <button class="btn btn-outline" id="rec-start-btn" type="button">🎙️ เริ่มอัดเสียง</button>
+        <button class="btn btn-outline" id="rec-stop-btn" type="button" disabled>⏹️ หยุด</button>
+      </div>
+      <div class="rec-row">
+        <input type="file" id="up-file" accept="audio/*" style="flex:1;">
+      </div>
+      <div class="rec-status" id="rec-status"></div>
+      <div id="rec-preview"></div>
+      <div class="mini-note">อัดเสียงสดผ่านไมค์ (สูงสุด ~8 วินาที) หรืออัปโหลดไฟล์เสียงที่มีอยู่แล้วก็ได้</div>
+    </div>
+
+    <div class="field">
+      <label>ความถี่ที่วัดได้ (Hz)</label>
+      <div class="rec-row" style="margin-bottom:0;">
+        <input type="number" id="up-freq" placeholder="เช่น 146.2">
+        <button class="btn btn-outline btn-small" id="up-detect-btn" type="button">ตรวจจับอัตโนมัติ</button>
+      </div>
+      <div class="mini-note">กดตรวจจับอัตโนมัติหลังมีไฟล์เสียงแล้ว ระบบจะวิเคราะห์ความถี่หลักให้</div>
+    </div>
+
+    <div class="rec-row" style="margin-top:16px;">
+      <button class="btn btn-outline" id="up-cancel-btn" type="button">ยกเลิก</button>
+      <button class="btn btn-rope" id="up-submit-btn" type="button">บันทึกลงคลัง</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== standalone storage shim (IndexedDB) — replaces window.storage for PWA/APK ===== */
+if(!window.storage){
+  window.storage = (function(){
+    const DB='klongyao-bank', STORE='kv';
+    let dbp=null;
+    function db(){
+      if(!dbp) dbp = new Promise((res,rej)=>{
+        const rq = indexedDB.open(DB,1);
+        rq.onupgradeneeded = ()=> rq.result.createObjectStore(STORE);
+        rq.onsuccess = ()=> res(rq.result);
+        rq.onerror  = ()=> rej(rq.error);
+      });
+      return dbp;
+    }
+    async function store(mode){ const d=await db(); return d.transaction(STORE,mode).objectStore(STORE); }
+    return {
+      async get(k){ const s=await store('readonly'); return new Promise(res=>{ const r=s.get(k); r.onsuccess=()=>res(r.result==null?null:{value:r.result}); r.onerror=()=>res(null); }); },
+      async set(k,v){ const s=await store('readwrite'); return new Promise((res,rej)=>{ const r=s.put(v,k); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error); }); },
+      async delete(k){ const s=await store('readwrite'); return new Promise(res=>{ const r=s.delete(k); r.onsuccess=()=>res(); r.onerror=()=>res(); }); }
+    };
+  })();
+}
+/* ===== service worker registration ===== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW register failed',e)));
+}
+</script>
+<script>
+/* ============================================================
+   DATA: preset reference table (single source of truth)
+   ============================================================ */
+const PRESETS = [
+  {id:'banana-donut-95', category:'กล้วยบด (ติดแบบโดนัท)', material:'banana', size:'9.5"', min:144, max:148, note:'D3', mass:14.96, massLabel:'14.96ก.', db:'93.50dB', label:'กลอง 9.5 นิ้ว'},
+  {id:'banana-donut-11', category:'กล้วยบด (ติดแบบโดนัท)', material:'banana', size:'11"', min:154.5, max:157, note:'D#3', mass:20.71, massLabel:'20.71ก.', db:'94.05dB', label:'กลอง 11 นิ้ว'},
+  {id:'banana-circle-95', category:'กล้วยบด (ติดแบบวงกลม)', material:'banana', size:'9.5"', min:144, max:148, note:'D3', mass:19.2, massLabel:'19.2ก.', db:'93.50dB', label:'กลอง 9.5 นิ้ว'},
+  {id:'banana-circle-11', category:'กล้วยบด (ติดแบบวงกลม)', material:'banana', size:'11"', min:144, max:148, note:'D3', mass:18.9, massLabel:'18.9ก.', db:'94.05dB', label:'กลอง 11 นิ้ว'},
+  {id:'rice-95', category:'ข้าวเหนียว (สูตรดั้งเดิม)', material:'rice', size:'9.5"', min:138.69, max:141, note:'C#3', mass:18.8, massLabel:'18.8ก.', db:'92.74dB', label:'กลอง 9.5 นิ้ว'},
+  {id:'rice-11', category:'ข้าวเหนียว (สูตรดั้งเดิม)', material:'rice', size:'11"', min:155.64, max:157, note:'D#3', mass:26.8, massLabel:'26.8ก.', db:'93.05dB', label:'กลอง 11 นิ้ว'},
+  {id:'none-95', category:'กลองเปล่า (ไม่ติดวัสดุ)', material:'none', size:'9.5"', min:180, max:190, note:'F#3', mass:0, massLabel:'0ก.', db:'95.86dB', label:'กลองเปล่า 9.5 นิ้ว'},
+  {id:'none-11', category:'กลองเปล่า (ไม่ติดวัสดุ)', material:'none', size:'11"', min:265.24, max:270, note:'A#3', mass:0, massLabel:'0ก.', db:'97.11dB', label:'กลองเปล่า 11 นิ้ว'},
+];
+const MATERIAL_LABEL = {banana:'กล้วยบด', rice:'ข้าวเหนียว', none:'กลองเปล่า'};
+
+/* ============================================================
+   ROPE DIVIDER (signature visual)
+   ============================================================ */
+function ropeDividerSVG(colorA, colorB){
+  let a=[], b=[];
+  for(let x=0;x<=800;x+=20){
+    const up = (x/20)%2===0;
+    a.push(`${x},${up?16:2}`);
+    b.push(`${x},${up?2:16}`);
+  }
+  return `<svg viewBox="0 0 800 18" preserveAspectRatio="none">
+    <polyline points="${a.join(' ')}" fill="none" stroke="${colorA}" stroke-width="2.5" opacity="0.9"/>
+    <polyline points="${b.join(' ')}" fill="none" stroke="${colorB}" stroke-width="2.5" opacity="0.55"/>
+  </svg>`;
+}
+document.getElementById('rope-top').innerHTML = ropeDividerSVG('#b23a2e','#d9a441');
+document.getElementById('rope-bottom').innerHTML = ropeDividerSVG('#d9a441','#b23a2e');
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab !== 'tuner') stopTunerMic();
+    if(btn.dataset.tab !== 'compare') stopCompareMic();
+    if(btn.dataset.tab === 'bank') renderBankGrid();
+    if(btn.dataset.tab === 'compare') populateCompareSelect();
+    if(btn.dataset.tab === 'guide') populateCalcTargetSelect();
+  });
+});
+
+/* ============================================================
+   SHARED PITCH DETECTION (autocorrelation)
+   ============================================================ */
+function autoCorrelate(buffer, sampleRate){
+  let SIZE = buffer.length;
+  let rms = 0;
+  for(let i=0;i<SIZE;i++) rms += buffer[i]*buffer[i];
+  rms = Math.sqrt(rms/SIZE);
+  if(rms < 0.02) return -1;
+
+  let c = new Float32Array(SIZE);
+  for(let i=0;i<SIZE;i++)
+    for(let j=0;j<SIZE-i;j++)
+      c[i] = c[i] + buffer[j]*buffer[j+i];
+
+  let d = 0; while(c[d] > c[d+1]) d++;
+  let maxval=-1, maxpos=-1;
+  for(let i=d;i<SIZE;i++){ if(c[i] > maxval){ maxval=c[i]; maxpos=i; } }
+  return sampleRate / maxpos;
+}
+
+let lastTunerPitch = null;
+
+/* ============================================================
+   TUNER TAB
+   ============================================================ */
+let tunerCtx=null, tunerAnalyser=null, tunerData=null, tunerListening=false, tunerStream=null;
+let targetMin=144, targetMax=148, currentMode='banana';
+
+function renderPresetGroups(){
+  const groups = {};
+  PRESETS.forEach(p=>{ (groups[p.category] = groups[p.category]||[]).push(p); });
+  const dotColor = {banana:'var(--banana-dark)', rice:'var(--rice-line)', none:'var(--info)'};
+  const chipClass = {banana:'banana-mode', rice:'rice-mode', none:'no-mass'};
+  let html='';
+  Object.keys(groups).forEach(cat=>{
+    const mat = groups[cat][0].material;
+    html += `<div class="option-group">
+      <span class="option-label"><span class="dot" style="background:${dotColor[mat]}"></span>${cat}</span>
+      <div class="chips">`;
+    groups[cat].forEach(p=>{
+      html += `<button class="chip ${chipClass[mat]}" data-preset="${p.id}">${p.label}</button>`;
+    });
+    html += `</div></div>`;
+  });
+  document.getElementById('preset-groups').innerHTML = html;
+  document.querySelectorAll('#preset-groups .chip').forEach(btn=>{
+    btn.addEventListener('click', ()=> applyPreset(btn.dataset.preset, btn));
+  });
+  // activate first by default
+  const first = document.querySelector('#preset-groups .chip');
+  if(first) applyPreset(first.dataset.preset, first);
+}
+
+function applyPreset(id, el){
+  const p = PRESETS.find(x=>x.id===id);
+  if(!p) return;
+  targetMin = p.min; targetMax = p.max; currentMode = p.material;
+  document.getElementById('target-hz-display').innerText = `${p.min.toFixed(2)} - ${p.max.toFixed(2)}`;
+  document.getElementById('target-note-display').innerText = p.note;
+  document.getElementById('expert-ref').innerText = `อ้างอิง: ขนาด ${p.size} | มวล ${p.massLabel} | ระดับ ${p.db}`;
+  document.querySelectorAll('#preset-groups .chip').forEach(c=>c.classList.remove('active'));
+  if(el) el.classList.add('active');
+
+  const card = document.getElementById('advice-card');
+  card.style.borderLeftColor = currentMode==='none' ? 'var(--info)' : currentMode==='banana' ? 'var(--banana-dark)' : 'var(--rice-line)';
+
+  if(!tunerListening){
+    document.getElementById('status-label').innerText = "สถานะ: พร้อมวัดเสียง";
+    document.getElementById('status-label').style.color = "var(--rope-dark)";
+    document.getElementById('advice-content').innerText = "ตีกลองเพื่อเปรียบเทียบกับช่วงความถี่ที่ดีที่สุด";
+  }
+}
+
+async function toggleTunerMic(){
+  if(tunerListening){ stopTunerMic(); document.getElementById('start-btn').innerText="เริ่มวัดเสียงจริง"; return; }
+  try{
+    tunerCtx = new (window.AudioContext||window.webkitAudioContext)();
+    tunerStream = await navigator.mediaDevices.getUserMedia({audio:true});
+    const source = tunerCtx.createMediaStreamSource(tunerStream);
+    tunerAnalyser = tunerCtx.createAnalyser();
+    tunerAnalyser.fftSize = 2048;
+    source.connect(tunerAnalyser);
+    tunerData = new Float32Array(tunerAnalyser.fftSize);
+    tunerListening = true;
+    document.getElementById('start-btn').innerText = "หยุดการวัด";
+    updateTunerPitch();
+  }catch(err){ alert("กรุณาอนุญาตการเข้าถึงไมโครโฟน"); }
+}
+function stopTunerMic(){
+  tunerListening = false;
+  if(tunerStream){ tunerStream.getTracks().forEach(t=>t.stop()); tunerStream=null; }
+  if(tunerCtx){ tunerCtx.close(); tunerCtx=null; }
+}
+function updateTunerPitch(){
+  if(!tunerListening) return;
+  tunerAnalyser.getFloatTimeDomainData(tunerData);
+  const pitch = autoCorrelate(tunerData, tunerCtx.sampleRate);
+  if(pitch !== -1 && pitch < 600){
+    document.getElementById('current-hz').innerText = pitch.toFixed(2);
+    lastTunerPitch = pitch;
+    updateTunerUI(pitch);
+  }
+  requestAnimationFrame(updateTunerPitch);
+}
+function updateTunerUI(pitch){
+  const needle = document.getElementById('needle');
+  const status = document.getElementById('status-label');
+  const advice = document.getElementById('advice-content');
+  const midPoint = (targetMin+targetMax)/2;
+  let degree = (pitch-midPoint)*4;
+  needle.style.transform = `rotate(${Math.max(-45,Math.min(45,degree))}deg)`;
+
+  if(pitch >= targetMin && pitch <= targetMax){
+    status.innerText = "สถานะ: เสียงดี (In Tune) ✨";
+    status.style.color = "var(--success)";
+    advice.innerHTML = `ความถี่ <b>${pitch.toFixed(2)} Hz</b> อยู่ในเกณฑ์ที่เหมาะสมสำหรับโน้ต <b>${document.getElementById('target-note-display').innerText}</b> แล้ว`;
+  }else if(pitch > targetMax){
+    status.innerText = "สถานะ: เสียงสูงไป";
+    status.style.color = "var(--rope-dark)";
+    advice.innerHTML = currentMode==='none' ? "<b>วิธีแก้:</b> ให้ผ่อนหน้ากลองลงให้หย่อนขึ้น" : "<b>วิธีแก้:</b> เพิ่มมวลวัสดุ หรือ ขยายรัศมีการติดออกไปทางขอบ";
+  }else{
+    status.innerText = "สถานะ: เสียงต่ำไป";
+    status.style.color = "var(--info)";
+    advice.innerHTML = currentMode==='none' ? "<b>วิธีแก้:</b> ให้ขันเชือกหน้ากลองให้ตึงขึ้น" : "<b>วิธีแก้:</b> ลดมวลวัสดุ หรือ บีบรัศมีการติดเข้าหาศูนย์กลาง";
+  }
+}
+document.getElementById('start-btn').addEventListener('click', toggleTunerMic);
+document.getElementById('save-to-bank-btn').addEventListener('click', ()=>{
+  if(!lastTunerPitch){ alert('ยังไม่มีค่าความถี่ที่วัดได้ ลองวัดเสียงในแท็บจูนเสียงก่อน'); return; }
+  openUploadModal({freq:lastTunerPitch});
+  document.querySelector('.tab-btn[data-tab="bank"]').click();
+});
+
+/* ============================================================
+   STORAGE HELPERS (shared sound bank)
+   ============================================================ */
+const INDEX_KEY = 'bank:_index';
+async function getIndex(){
+  try{
+    const r = await window.storage.get(INDEX_KEY, true);
+    return r ? JSON.parse(r.value) : [];
+  }catch(e){ return []; }
+}
+async function saveIndex(ids){
+  try{ await window.storage.set(INDEX_KEY, JSON.stringify(ids), true); }catch(e){ console.error(e); }
+}
+async function getEntry(id){
+  try{
+    const r = await window.storage.get('bank:'+id, true);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+async function saveEntry(entry){
+  await window.storage.set('bank:'+entry.id, JSON.stringify(entry), true);
+}
+async function deleteEntryStorage(id){
+  try{ await window.storage.delete('bank:'+id, true); }catch(e){}
+  const ids = (await getIndex()).filter(x=>x!==id);
+  await saveIndex(ids);
+}
+async function loadAllEntries(){
+  const ids = await getIndex();
+  const entries = await Promise.all(ids.map(getEntry));
+  return entries.filter(Boolean).sort((a,b)=>b.createdAt-a.createdAt);
+}
+
+let myUploadIds = []; // session-only, allows deleting your own uploads this session
+let currentBankFilter = 'all';
+let cachedEntries = [];
+
+async function renderBankGrid(){
+  const grid = document.getElementById('bank-grid');
+  grid.innerHTML = `<div class="empty-state">กำลังโหลดคลังเสียง...</div>`;
+  cachedEntries = await loadAllEntries();
+  drawBankGrid();
+}
+function drawBankGrid(){
+  const grid = document.getElementById('bank-grid');
+  let entries = cachedEntries;
+  if(currentBankFilter !== 'all') entries = entries.filter(e=>e.material===currentBankFilter);
+  if(entries.length === 0){
+    grid.innerHTML = `<div class="empty-state">ยังไม่มีเสียงในหมวดนี้ — เป็นคนแรกที่อัปโหลดสิ!</div>`;
+    return;
+  }
+  grid.innerHTML = entries.map(e=>{
+    const mine = myUploadIds.includes(e.id);
+    return `<div class="bank-card ${e.material}">
+      <h4>${escapeHtml(e.name)}</h4>
+      <div class="bank-meta">${e.submitter ? 'โดย '+escapeHtml(e.submitter)+' · ' : ''}${new Date(e.createdAt).toLocaleDateString('th-TH')}</div>
+      <div class="bank-tags">
+        <span class="tag">${MATERIAL_LABEL[e.material]}</span>
+        <span class="tag">${escapeHtml(e.size)}</span>
+        <span class="tag">${e.mass} ก.</span>
+        <span class="tag">${e.freq ? e.freq.toFixed(2)+' Hz' : 'ไม่ระบุ Hz'}</span>
+      </div>
+      ${e.audioData ? `<audio controls src="${e.audioData}"></audio>` : '<div class="mini-note">ไม่มีไฟล์เสียงแนบ</div>'}
+      <div class="bank-card-actions">
+        <button class="btn btn-outline btn-small" onclick="useAsCompareTarget('${e.id}')">ใช้เปรียบเทียบ</button>
+        ${mine ? `<button class="btn btn-danger btn-small" onclick="removeEntry('${e.id}')">ลบ</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+document.querySelectorAll('.filter-chip').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentBankFilter = btn.dataset.filter;
+    drawBankGrid();
+  });
+});
+
+async function removeEntry(id){
+  if(!confirm('ลบเสียงนี้ออกจากคลัง?')) return;
+  await deleteEntryStorage(id);
+  cachedEntries = cachedEntries.filter(e=>e.id!==id);
+  drawBankGrid();
+}
+
+/* ============================================================
+   UPLOAD MODAL + RECORDING
+   ============================================================ */
+let mediaRecorder=null, recordedChunks=[], recordedBlob=null, recordedDataUrl=null;
+
+function openUploadModal(prefill){
+  document.getElementById('upload-modal').classList.remove('hidden');
+  document.getElementById('up-name').value='';
+  document.getElementById('up-submitter').value='';
+  document.getElementById('up-mass').value='';
+  document.getElementById('up-freq').value = prefill && prefill.freq ? prefill.freq.toFixed(2) : '';
+  document.getElementById('rec-status').innerText='';
+  document.getElementById('rec-preview').innerHTML='';
+  document.getElementById('up-file').value='';
+  recordedBlob=null; recordedDataUrl=null;
+}
+function closeUploadModal(){ document.getElementById('upload-modal').classList.add('hidden'); }
+document.getElementById('open-upload-btn').addEventListener('click', ()=>openUploadModal());
+document.getElementById('up-cancel-btn').addEventListener('click', closeUploadModal);
+
+document.getElementById('rec-start-btn').addEventListener('click', async ()=>{
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    recordedChunks = [];
+    let mimeType = 'audio/webm;codecs=opus';
+    if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = '';
+    mediaRecorder = mimeType ? new MediaRecorder(stream,{mimeType, audioBitsPerSecond:64000}) : new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e=>{ if(e.data.size>0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = async ()=>{
+      recordedBlob = new Blob(recordedChunks, {type: mediaRecorder.mimeType||'audio/webm'});
+      stream.getTracks().forEach(t=>t.stop());
+      recordedDataUrl = await blobToDataUrl(recordedBlob);
+      document.getElementById('rec-preview').innerHTML = `<audio controls src="${recordedDataUrl}" style="width:100%;"></audio>`;
+      document.getElementById('rec-status').innerText = 'อัดเสียงเสร็จแล้ว ✓';
+    };
+    mediaRecorder.start();
+    document.getElementById('rec-status').innerText = '🔴 กำลังอัดเสียง...';
+    document.getElementById('rec-start-btn').disabled = true;
+    document.getElementById('rec-stop-btn').disabled = false;
+    setTimeout(()=>{ if(mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop(); }, 8000);
+  }catch(err){ alert('กรุณาอนุญาตการเข้าถึงไมโครโฟน'); }
+});
+document.getElementById('rec-stop-btn').addEventListener('click', ()=>{
+  if(mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop();
+  document.getElementById('rec-start-btn').disabled=false;
+  document.getElementById('rec-stop-btn').disabled=true;
+});
+document.getElementById('up-file').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  recordedBlob = file;
+  recordedDataUrl = await blobToDataUrl(file);
+  document.getElementById('rec-preview').innerHTML = `<audio controls src="${recordedDataUrl}" style="width:100%;"></audio>`;
+  document.getElementById('rec-status').innerText = 'เลือกไฟล์แล้ว ✓';
+});
+
+function blobToDataUrl(blob){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+document.getElementById('up-detect-btn').addEventListener('click', async ()=>{
+  if(!recordedBlob){ alert('ยังไม่มีไฟล์เสียง กรุณาอัดหรืออัปโหลดก่อน'); return; }
+  document.getElementById('rec-status').innerText = 'กำลังวิเคราะห์ความถี่...';
+  try{
+    const freq = await detectPitchFromBlob(recordedBlob);
+    if(freq){
+      document.getElementById('up-freq').value = freq.toFixed(2);
+      document.getElementById('rec-status').innerText = `ตรวจพบความถี่ ~${freq.toFixed(2)} Hz`;
+    }else{
+      document.getElementById('rec-status').innerText = 'ตรวจจับไม่สำเร็จ กรุณากรอกความถี่เอง';
+    }
+  }catch(e){ document.getElementById('rec-status').innerText = 'ตรวจจับไม่สำเร็จ กรุณากรอกความถี่เอง'; }
+});
+
+async function detectPitchFromBlob(blob){
+  const arrBuf = await blob.arrayBuffer();
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  const audioBuf = await ctx.decodeAudioData(arrBuf.slice(0));
+  const channel = audioBuf.getChannelData(0);
+  // analyse a representative 2048-sample window from the loudest section
+  const windowSize = 2048;
+  let bestStart=0, bestRms=-1;
+  for(let i=0;i+windowSize<channel.length;i+=windowSize){
+    let rms=0;
+    for(let j=i;j<i+windowSize;j++) rms += channel[j]*channel[j];
+    rms = Math.sqrt(rms/windowSize);
+    if(rms>bestRms){ bestRms=rms; bestStart=i; }
+  }
+  const slice = channel.slice(bestStart, bestStart+windowSize);
+  const pitch = autoCorrelate(slice, audioBuf.sampleRate);
+  ctx.close();
+  return (pitch>0 && pitch<600) ? pitch : null;
+}
+
+document.getElementById('up-submit-btn').addEventListener('click', async ()=>{
+  const name = document.getElementById('up-name').value.trim();
+  if(!name){ alert('กรุณาใส่ชื่อเสียง/รายการ'); return; }
+  const entry = {
+    id: 'e'+Date.now()+Math.random().toString(36).slice(2,8),
+    name,
+    submitter: document.getElementById('up-submitter').value.trim(),
+    material: document.getElementById('up-material').value,
+    size: document.getElementById('up-size').value,
+    mass: parseFloat(document.getElementById('up-mass').value)||0,
+    freq: parseFloat(document.getElementById('up-freq').value)||null,
+    audioData: recordedDataUrl || null,
+    createdAt: Date.now(),
+  };
+  document.getElementById('up-submit-btn').disabled = true;
+  document.getElementById('up-submit-btn').innerText = 'กำลังบันทึก...';
+  try{
+    await saveEntry(entry);
+    const ids = await getIndex();
+    ids.push(entry.id);
+    await saveIndex(ids);
+    myUploadIds.push(entry.id);
+    closeUploadModal();
+    await renderBankGrid();
+  }catch(e){
+    alert('เกิดข้อผิดพลาดในการบันทึก กรุณาลองใหม่');
+  }
+  document.getElementById('up-submit-btn').disabled = false;
+  document.getElementById('up-submit-btn').innerText = 'บันทึกลงคลัง';
+});
+
+/* ============================================================
+   COMPARE TAB
+   ============================================================ */
+let compareTarget = null;
+async function populateCompareSelect(){
+  if(cachedEntries.length===0) cachedEntries = await loadAllEntries();
+  const sel = document.getElementById('compare-select');
+  sel.innerHTML = '<option value="">— เลือกเสียงอ้างอิง —</option>' +
+    cachedEntries.map(e=>`<option value="${e.id}">${escapeHtml(e.name)} (${e.freq?e.freq.toFixed(1)+'Hz':'?'})</option>`).join('');
+}
+document.getElementById('compare-select').addEventListener('change', (e)=>{
+  const entry = cachedEntries.find(x=>x.id===e.target.value);
+  setCompareTarget(entry);
+});
+function useAsCompareTarget(id){
+  document.querySelector('.tab-btn[data-tab="compare"]').click();
+  setTimeout(async ()=>{
+    if(cachedEntries.length===0) cachedEntries = await loadAllEntries();
+    document.getElementById('compare-select').value = id;
+    setCompareTarget(cachedEntries.find(x=>x.id===id));
+  }, 50);
+}
+function setCompareTarget(entry){
+  compareTarget = entry;
+  if(!entry){
+    document.getElementById('compare-target-hz').innerText='— Hz';
+    document.getElementById('compare-target-note').innerText='—';
+    document.getElementById('compare-ref-audio').innerHTML='';
+    return;
+  }
+  document.getElementById('compare-target-hz').innerText = entry.freq ? entry.freq.toFixed(2)+' Hz' : '— Hz';
+  document.getElementById('compare-target-note').innerText = `${MATERIAL_LABEL[entry.material]} · ${entry.size}`;
+  document.getElementById('compare-ref-audio').innerHTML = entry.audioData ? `<audio controls src="${entry.audioData}" style="width:100%;"></audio>` : '';
+}
+
+let compareCtx=null, compareAnalyser=null, compareData=null, compareListening=false, compareStream=null;
+document.getElementById('compare-mic-btn').addEventListener('click', async ()=>{
+  if(compareListening){ stopCompareMic(); document.getElementById('compare-mic-btn').innerText='เริ่มฟังเพื่อเปรียบเทียบ'; return; }
+  if(!compareTarget){ alert('กรุณาเลือกเสียงอ้างอิงก่อน'); return; }
+  try{
+    compareCtx = new (window.AudioContext||window.webkitAudioContext)();
+    compareStream = await navigator.mediaDevices.getUserMedia({audio:true});
+    const source = compareCtx.createMediaStreamSource(compareStream);
+    compareAnalyser = compareCtx.createAnalyser();
+    compareAnalyser.fftSize = 2048;
+    source.connect(compareAnalyser);
+    compareData = new Float32Array(compareAnalyser.fftSize);
+    compareListening = true;
+    document.getElementById('compare-mic-btn').innerText = 'หยุดฟัง';
+    updateComparePitch();
+  }catch(err){ alert('กรุณาอนุญาตการเข้าถึงไมโครโฟน'); }
+});
+function stopCompareMic(){
+  compareListening = false;
+  if(compareStream){ compareStream.getTracks().forEach(t=>t.stop()); compareStream=null; }
+  if(compareCtx){ compareCtx.close(); compareCtx=null; }
+}
+function updateComparePitch(){
+  if(!compareListening) return;
+  compareAnalyser.getFloatTimeDomainData(compareData);
+  const pitch = autoCorrelate(compareData, compareCtx.sampleRate);
+  if(pitch!==-1 && pitch<600){
+    document.getElementById('compare-live-hz').innerText = pitch.toFixed(2);
+    lastTunerPitch = pitch;
+    if(compareTarget && compareTarget.freq){
+      const diff = pitch - compareTarget.freq;
+      const cents = 1200*Math.log2(pitch/compareTarget.freq);
+      const banner = document.getElementById('compare-diff-banner');
+      document.getElementById('compare-live-note').innerText = `${diff>0?'+':''}${diff.toFixed(2)} Hz (${cents>0?'+':''}${cents.toFixed(0)} cents)`;
+      if(Math.abs(diff) < 1.5){
+        banner.style.background = 'var(--success)'; banner.style.color='#fff';
+        banner.innerText = '🎯 ตรงกับเสียงอ้างอิงแล้ว!';
+      }else if(diff>0){
+        banner.style.background = 'var(--rope)'; banner.style.color='#fff';
+        banner.innerText = `เสียงคุณสูงกว่าอ้างอิง ${diff.toFixed(2)} Hz — ลองเพิ่มมวลหรือขยายรัศมีวัสดุ`;
+      }else{
+        banner.style.background = 'var(--info)'; banner.style.color='#fff';
+        banner.innerText = `เสียงคุณต่ำกว่าอ้างอิง ${Math.abs(diff).toFixed(2)} Hz — ลองลดมวลหรือบีบรัศมีวัสดุ`;
+      }
+    }
+  }
+  requestAnimationFrame(updateComparePitch);
+}
+
+/* ============================================================
+   GUIDE TAB — mass calculator
+   ============================================================ */
+function populateCalcTargetSelect(){
+  const sel = document.getElementById('calc-target-select');
+  let html = '<option value="">— เลือกอ้างอิง —</option>';
+  html += '<optgroup label="ค่ามาตรฐาน">';
+  PRESETS.forEach(p=>{
+    const mid = (p.min+p.max)/2;
+    html += `<option value="${mid}">${p.category} · ${p.label} (${mid.toFixed(1)}Hz)</option>`;
+  });
+  html += '</optgroup>';
+  if(cachedEntries.length){
+    html += '<optgroup label="จากคลังเสียง">';
+    cachedEntries.filter(e=>e.freq).forEach(e=>{
+      html += `<option value="${e.freq}">${escapeHtml(e.name)} (${e.freq.toFixed(1)}Hz)</option>`;
+    });
+    html += '</optgroup>';
+  }
+  sel.innerHTML = html;
+}
+document.getElementById('calc-use-tuner').addEventListener('click', ()=>{
+  if(lastTunerPitch) document.getElementById('calc-freq-current').value = lastTunerPitch.toFixed(2);
+  else alert('ยังไม่มีค่าความถี่ล่าสุด ลองวัดเสียงในแท็บจูนเสียงหรือเปรียบเทียบก่อน');
+});
+document.getElementById('calc-target-select').addEventListener('change', (e)=>{
+  if(e.target.value) document.getElementById('calc-freq-target').value = parseFloat(e.target.value).toFixed(2);
+});
+document.getElementById('calc-btn').addEventListener('click', ()=>{
+  const m = parseFloat(document.getElementById('calc-mass').value);
+  const f0 = parseFloat(document.getElementById('calc-freq-current').value);
+  const f1 = parseFloat(document.getElementById('calc-freq-target').value);
+  const result = document.getElementById('calc-result');
+  if(!m || !f0 || !f1){
+    alert('กรุณากรอกมวลปัจจุบัน ความถี่ปัจจุบัน และความถี่เป้าหมายให้ครบ');
+    return;
+  }
+  const mTarget = m * Math.pow(f0/f1, 2);
+  const delta = mTarget - m;
+  result.style.display = 'block';
+  result.innerHTML = `
+    <div style="font-size:12.5px;color:#6b5744;">มวลที่ควรมีโดยประมาณ</div>
+    <div class="big">${mTarget.toFixed(2)} กรัม</div>
+    <div style="margin-top:8px;font-weight:700;color:${delta>0?'var(--rope-dark)':'var(--info)'};">
+      ${delta>0 ? `➕ เพิ่มมวลอีกประมาณ ${delta.toFixed(2)} กรัม` : `➖ ลดมวลลงประมาณ ${Math.abs(delta).toFixed(2)} กรัม`}
+    </div>`;
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderPresetGroups();
+</script>
+</body>
+</html>
